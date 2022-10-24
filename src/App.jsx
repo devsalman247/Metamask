@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import WalletConnectProvider from '@walletconnect/web3-provider/dist/umd/index.min.js';
+import { ethers } from "ethers";
 import Web3 from "web3";
 
 function App() {
@@ -24,6 +25,17 @@ function App() {
     });
     await provider.enable();
     const web3 = new Web3(provider);
+  }
+
+  async function connectByEther() {
+    if(window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      signer.getAddress().then(address => console.log(signer, address))
+    }else {
+      console.log("Can't found any ethereum configured wallet");
+    }
   }
 
   async function connectWallet() {
@@ -101,6 +113,12 @@ function App() {
             onClick={connectWallet}
           >
             Connect to Metamask
+          </button>
+          <button
+            className="px-3 py-2 ml-2 rounded bg-slate-500 text-white focus:outline-none"
+            onClick={connectByEther}
+          >
+            Connect to Metamask using EtherJs
           </button>
           <button
             className="px-3 py-2 ml-2 rounded bg-slate-500 text-white focus:outline-none"
