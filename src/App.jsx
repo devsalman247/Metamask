@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import WalletConnectProvider from '@walletconnect/web3-provider/dist/umd/index.min.js';
 import Web3 from "web3";
 
 function App() {
@@ -16,6 +17,14 @@ function App() {
     setUser(userData);
     setIsConnected(true);
   };
+
+  async function walletconnect() {
+    const provider = new WalletConnectProvider({
+      infuraId: "27e484dcd9e3efcfd25a83a78777cdf1",
+    });
+    await provider.enable();
+    const web3 = new Web3(provider);
+  }
 
   async function connectWallet() {
     let provider;
@@ -92,6 +101,12 @@ function App() {
             onClick={connectWallet}
           >
             Connect to Metamask
+          </button>
+          <button
+            className="px-3 py-2 ml-2 rounded bg-slate-500 text-white focus:outline-none"
+            onClick={walletconnect}
+          >
+            Connect with WalletConnect
           </button>
           <div className="mt-2">Status : Not Connected</div>
         </div>
