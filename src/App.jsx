@@ -21,20 +21,57 @@ function App() {
 
   async function walletconnect() {
     const provider = new WalletConnectProvider({
-      infuraId: "27e484dcd9e3efcfd25a83a78777cdf1",
+      infuraId: "d9f3bb64fb3c42d59ec58bb01df0cdb9",
     });
-    await provider.enable();
-    const web3 = new Web3(provider);
+
+    try {
+      if(provider) {
+        await provider.enable();
+    
+        provider.on("accountsChanged", (accounts) => {
+          console.log(accounts);
+        });
+        
+        provider.on("chainChanged", (chainId) => {
+          console.log(chainId);
+        });
+        
+        provider.on("disconnect", (code, reason) => {
+          console.log(code, reason);
+        });
+        const web3 = new Web3(provider);
+        const accounts = await web3.eth.getAccounts();
+        const account = accounts[0];
+        let ethBalance = await web3.eth.getBalance(accounts[0]);
+        ethBalance = web3.utils.fromWei(ethBalance,"ether");
+        const chainId = await web3.eth.getChainId();
+        // await web3.eth.sign("Hello Web3!");
+        saveUserInfo(ethBalance, account, chainId);
+      }else {
+        console.log("Something went wrong!!")
+      }
+    }catch(err) {
+      console.log(err)
+    }
   }
 
   async function connectByEther() {
-    if(window.ethereum) {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      signer.getAddress().then(address => console.log(signer, address))
-    }else {
-      console.log("Can't found any ethereum configured wallet");
+    try {
+      if(window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const chainId = await signer.getChainId();
+        const account = await signer.getAddress();
+        let ethBalance = await provider.getBalance(account);
+        ethBalance = ethers.utils.formatEther(ethBalance);
+        await signer.signMessage("Hello Web3!");
+        saveUserInfo(ethBalance, account, chainId);
+      }else {
+        console.log("Can't found any ethereum configured wallet");
+      }
+    }catch (err) {
+      console.log(err);
     }
   }
 
@@ -55,6 +92,7 @@ function App() {
       }
       const web3 = new Web3(provider);
       const userAccount = await web3.eth.getAccounts();
+      await web3.eth.personal.sign("Hello Web3!",userAccount[0]).then(console.log);
       if (userAccount.length === 0) {
         console.log("Please connect to meta mask");
       }
@@ -89,9 +127,6 @@ function App() {
     <div className="flex flex-col items-center">
       {Object.keys(user).length !== 0 ? (
         <>
-          <button className="px-3 py-2 rounded bg-slate-500 text-white focus:outline-none">
-            Connected
-          </button>
           <button
             className="mt-2 px-3 py-2 rounded bg-slate-500 text-white focus:outline-none"
             onClick={onDisconnect}
