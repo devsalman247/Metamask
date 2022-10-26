@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import WalletConnectProvider from "@walletconnect/web3-provider/dist/umd/index.min.js";
 import { ethers } from "ethers";
+import Swal from "sweetalert2";
 import Web3 from "web3";
 
 function App() {
   const [user, setUser] = useState({});
   const [isConnected, setIsConnected] = useState(false);
+  const [chainId, setChainId] = useState(0);
 
   const saveUserInfo = (ethBalance, account, chainId) => {
     const userAccount = {
@@ -59,6 +61,20 @@ function App() {
         let ethBalance = await web3.eth.getBalance(accounts[0]);
         ethBalance = web3.utils.fromWei(ethBalance, "ether");
         const chainId = await web3.eth.getChainId();
+        if(chainId !== 56) {
+          Swal.fire({
+            position: "center",
+            icon: "error",
+            title:
+              "Wrong chain selected..Please select Binance Smart Chain to connect",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          await provider.disconnect();
+          setUser({});
+          setIsConnected(false);
+          return;
+        }
         saveWallet(account, ethBalance, chainId);
       } else {
         console.log("Something went wrong!!");
@@ -69,6 +85,17 @@ function App() {
   }
 
   async function connectByEther() {
+    if (chainId !== 56) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title:
+          "Wrong chain selected..Please select Binance Smart Chain to connect",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      return;
+    }
     try {
       if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -89,6 +116,18 @@ function App() {
   }
 
   async function connectWallet() {
+    console.log(chainId);
+    if (chainId !== 56) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title:
+          "Wrong chain selected..Please select Binance Smart Chain to connect",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      return;
+    }
     let provider;
     if (window.ethereum) {
       provider = window.ethereum;
@@ -134,6 +173,25 @@ function App() {
     setIsConnected(false);
   };
 
+  async function getChainId() {
+    const web3 = new Web3(window.ethereum);
+    const chainId = await web3.eth.getChainId();
+    setChainId(chainId);
+  }
+
+  useEffect(() => {
+    if (chainId !== 56 && chainId !== 0) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title:
+          "Wrong chain selected..Please select Binance Smart Chain to connect",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    }
+  }, [chainId]);
+
   useEffect(() => {
     function checkConnectedWallet() {
       const userData =
@@ -144,13 +202,17 @@ function App() {
         setIsConnected(true);
       }
     }
+    getChainId();
     window.ethereum.on("accountsChanged", async (accounts) => {
-      console.log(accounts)
-      if(accounts.length===0) {
+      console.log(accounts);
+      if (accounts.length === 0) {
         window.localStorage.removeItem("metamask");
         setUser({});
         setIsConnected(false);
       }
+    });
+    window.ethereum.on("chainChanged", (chainId) => {
+      getChainId();
     });
     checkConnectedWallet();
   }, []);
