@@ -61,7 +61,7 @@ function App() {
         let ethBalance = await web3.eth.getBalance(accounts[0]);
         ethBalance = web3.utils.fromWei(ethBalance, "ether");
         const chainId = await web3.eth.getChainId();
-        if(chainId !== 56) {
+        if (chainId !== 56) {
           Swal.fire({
             position: "center",
             icon: "error",
@@ -179,6 +179,10 @@ function App() {
     setChainId(chainId);
   }
 
+  const getWalletDetails = async () => {
+    
+  }
+
   useEffect(() => {
     if (chainId !== 56 && chainId !== 0) {
       Swal.fire({
@@ -233,6 +237,12 @@ function App() {
               Account : {user.account} <br />
               Balance : {user.balance} ETH
             </div>
+            <button
+              className="px-3 py-2 rounded bg-slate-500 text-white focus:outline-none"
+              onClick={getWalletDetails}
+            >
+              Get my wallet details
+            </button>
           </div>
         </>
       ) : (
