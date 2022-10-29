@@ -180,7 +180,8 @@ function App() {
   }
 
   const getWalletDetails = async () => {
-    
+    let details;
+    return details
   }
 
   useEffect(() => {
