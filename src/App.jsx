@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import WalletConnectProvider from "@walletconnect/web3-provider/dist/umd/index.min.js";
 import { ethers } from "ethers";
-import moralis from "moralis";
 import Swal from "sweetalert2";
 import Web3 from "web3";
 
@@ -180,50 +179,6 @@ function App() {
     setChainId(chainId);
   }
 
-  const getWalletDetails = async () => {
-    let details;
-    return details;
-  };
-
-  // const changeChain = async () => {
-  //   const web3 = await Moralis.Web3.enable();
-  //   const chainIdHex = web3.currentProvider.chainId;
-  //   const chainIdDec = await web3.eth.getChainId();
-  //   console.log(chainIdHex);
-  //   console.log(chainIdDec);
-  //   const switchNetworkMumbai = async () => {
-  //     try {
-  //       await web3.currentProvider.request({
-  //         method: "wallet_switchEthereumChain",
-  //         params: [{ chainId: "0x13881" }],
-  //       });
-  //     } catch (error) {
-  //       if (error.code === 4902) {
-  //         try {
-  //           await web3.currentProvider.request({
-  //             method: "wallet_addEthereumChain",
-  //             params: [
-  //               {
-  //                 chainId: "0x13881",
-  //                 chainName: "Mumbai",
-  //                 rpcUrls: ["https://rpc-mumbai.matic.today"],
-  //                 nativeCurrency: {
-  //                   name: "Matic",
-  //                   symbol: "Matic",
-  //                   decimals: 18,
-  //                 },
-  //                 blockExplorerUrls: ["https://explorer-mumbai.maticvigil.com"],
-  //               },
-  //             ],
-  //           });
-  //         } catch (error) {
-  //           alert(error.message);
-  //         }
-  //       }
-  //     }
-  //   };
-  // };
-
   useEffect(() => {
     if (chainId !== 56 && chainId !== 0) {
       Swal.fire({
@@ -237,12 +192,7 @@ function App() {
     }
   }, [chainId]);
 
-  useEffect(async () => {
-    
-  const Moralis = moralis.default;
-    await Moralis.start({
-      apiKey: process.env.REACT_APP_API_KEY,
-    });
+  useEffect(() => {
     function checkConnectedWallet() {
       const userData =
         JSON.parse(localStorage.getItem("metamask")) ||
@@ -283,18 +233,6 @@ function App() {
               Account : {user.account} <br />
               Balance : {user.balance} ETH
             </div>
-            <button
-              className="px-3 py-2 mt-2 self-center rounded bg-slate-500 text-white focus:outline-none"
-              onClick={getWalletDetails}
-            >
-              Get my wallet details
-            </button>
-            <button
-              className="px-3 py-2 mt-2 self-center rounded bg-slate-500 text-white focus:outline-none"
-              onClick={changeChain}
-            >
-              Change my chain
-            </button>
           </div>
         </>
       ) : (
