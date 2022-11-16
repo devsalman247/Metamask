@@ -40,6 +40,7 @@ function App() {
 
     try {
       if (provider) {
+        console.log("hello", provider);
         await provider.enable();
 
         provider.on("accountsChanged", (accounts) => {
